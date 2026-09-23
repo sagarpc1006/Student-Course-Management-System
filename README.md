@@ -50,12 +50,7 @@ Enrollment ──1:1── Results
 ```
 college-enrollment-db/
 ├── README.md
-├── schema/
-│   └── create_tables.sql       # All CREATE TABLE statements
-├── data/
-│   └── sample_data.sql         # Sample INSERT statements
-└── queries/
-    └── sample_queries.sql      # Views, joins, aggregates, etc.
+└── DATABASE.SQL      # Schema (CREATE TABLE), sample data (INSERT), and queries — all in one file
 ```
 
 ---
