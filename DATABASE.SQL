@@ -1,0 +1,355 @@
+# DDL 
+# To create database
+CREATE DATABASE COLLEGE ;
+# To use database 
+USE COLLEGE;
+
+# STUDENT TABLE CREATION
+CREATE TABLE STUDENTS(
+	ID INT PRIMARY KEY , 
+    NAME VARCHAR(255) NOT NULL , 
+    GENDER VARCHAR(1)  NOT NULL CHECK (GENDER IN ('M','F')) , 
+    PHONE_NO INT UNIQUE NOT NULL , 
+    EMAIL VARCHAR(255) NOT NULL CHECK (EMAIL LIKE "%@indiraicem.ac.in")  ,
+    DOB DATE NOT NULL 
+);
+
+# STAFF TABLE CREATION
+CREATE TABLE STAFF(
+	ID INT PRIMARY KEY , 
+    NAME VARCHAR(255) NOT NULL , 
+    GENDER VARCHAR(1)  NOT NULL CHECK (GENDER IN ('M','F')) , 
+    PHONE_NO INT UNIQUE NOT NULL , 
+    EMAIL VARCHAR(255) UNIQUE NOT NULL CHECK (EMAIL LIKE "%@indiraicem.ac.in")  ,
+    DOB DATE NOT NULL , 
+    ROLES VARCHAR(255) NOT NULL CHECK (ROLES IN ('PRINCIPAL','DEAN','HOD','FACULTY'))
+);
+
+# DEPARTMENT TABLE CREATION 
+CREATE TABLE DEPARTMENT(
+	ID INT PRIMARY KEY ,
+    DEPARTMENT_NAME VARCHAR(255) UNIQUE NOT NULL ,
+    DEPARTMENT_CODE VARCHAR(255) UNIQUE NOT NULL ,
+    CONTACT_PHONE INT UNIQUE NOT NULL , 
+    CONTACT_EMAIL VARCHAR(255) UNIQUE NOT NULL CHECK (CONTACT_EMAIL LIKE '%@indiraicem.ac.in'),
+    FACULTY_ID INT NOT NULL ,
+    FOREIGN KEY (FACULTY_ID) REFERENCES STAFF(ID)
+);
+
+# SUBJECT TABLE CREATION 
+CREATE TABLE SUBJECTS(
+	ID INT PRIMARY KEY , 
+    NAME VARCHAR(255) UNIQUE NOT NULL,
+    SUBJECT_CODE VARCHAR(255) UNIQUE NOT NULL,
+    CREDITS INT NOT NULL CHECK (CREDITS > 0), 
+    FACULTY_ID INT NOT NULL,
+    FOREIGN KEY (FACULTY_ID) REFERENCES STAFF(ID),
+    DEPARTMENT_ID INT NOT NULL, 
+	FOREIGN KEY (DEPARTMENT_ID) REFERENCES DEPARTMENT(ID)
+);
+
+# SEMESTER TABLE CREATION 
+CREATE TABLE SEMESTER (
+	ID INT PRIMARY KEY , 
+    SEMESTER_NO INT NOT NULL CHECK (SEMESTER_NO BETWEEN 1 AND 8),
+    YEAR INT NOT NULL,
+    UNIQUE (SEMESTER_NO, YEAR)
+);
+
+# ENROLLMENT TABLE CREATION 
+CREATE TABLE ENROLLMENT (
+	ID INT PRIMARY KEY , 
+    STUDENT_ID INT NOT NULL , 
+    FOREIGN KEY (STUDENT_ID) REFERENCES STUDENTS(ID),
+    SUBJECT_ID INT NOT NULL , 
+    FOREIGN KEY (SUBJECT_ID) REFERENCES SUBJECTS(ID),
+    SEMESTER_ID INT NOT NULL , 
+    FOREIGN KEY (SEMESTER_ID) REFERENCES SEMESTER(ID),
+    UNIQUE (STUDENT_ID, SUBJECT_ID, SEMESTER_ID)
+);
+
+# RESULTS TABLE CREATION 
+CREATE TABLE RESULTS(
+	ID INT PRIMARY KEY , 
+    ENROLLMENT_ID INT NOT NULL UNIQUE,
+    MARKS INT NOT NULL CHECK (MARKS BETWEEN 0 AND 100),
+    FOREIGN KEY (ENROLLMENT_ID) REFERENCES ENROLLMENT(ID),
+    RESULTS_STATUS VARCHAR(255) NOT NULL CHECK (RESULTS_STATUS IN ('PASS','FAIL'))
+    );
+# ALTER QUERIES 
+ALTER TABLE STUDENTS MODIFY PHONE_NO BIGINT NOT NULL;
+ALTER TABLE STAFF MODIFY PHONE_NO BIGINT NOT NULL;
+ALTER TABLE DEPARTMENT MODIFY CONTACT_PHONE BIGINT NOT NULL;
+# SAMPLE DATA INSERTION 
+
+# DML 
+# INSERT INTO STAFF
+SET SESSION cte_max_recursion_depth = 10000;
+
+INSERT INTO STAFF (ID, NAME, GENDER, PHONE_NO, EMAIL, DOB, ROLES)
+WITH RECURSIVE seq AS (
+    SELECT 1 AS n
+    UNION ALL
+    SELECT n + 1
+    FROM seq
+    WHERE n < 100
+)
+SELECT
+    n,
+    CONCAT(
+        CASE MOD(n, 10)
+            WHEN 0 THEN 'Aarav'
+            WHEN 1 THEN 'Aditya'
+            WHEN 2 THEN 'Rahul'
+            WHEN 3 THEN 'Amit'
+            WHEN 4 THEN 'Rohit'
+            WHEN 5 THEN 'Sneha'
+            WHEN 6 THEN 'Priya'
+            WHEN 7 THEN 'Neha'
+            WHEN 8 THEN 'Pooja'
+            ELSE 'Karan'
+        END,
+        ' ',
+        CASE MOD(n, 10)
+            WHEN 0 THEN 'Sharma'
+            WHEN 1 THEN 'Patil'
+            WHEN 2 THEN 'Deshmukh'
+            WHEN 3 THEN 'Joshi'
+            WHEN 4 THEN 'Kulkarni'
+            WHEN 5 THEN 'Yadav'
+            WHEN 6 THEN 'More'
+            WHEN 7 THEN 'Pawar'
+            WHEN 8 THEN 'Jadhav'
+            ELSE 'Gadgil'
+        END,
+        ' ', n
+    ),
+    CASE WHEN MOD(n, 2) = 0 THEN 'F' ELSE 'M' END,
+    9000000000 + n,
+    CONCAT('staff', n, '@indiraicem.ac.in'),
+    DATE_ADD('1970-01-01', INTERVAL MOD(n * 137, 12000) DAY),
+    CASE
+        WHEN n = 1 THEN 'PRINCIPAL'
+        WHEN n BETWEEN 2 AND 5 THEN 'DEAN'
+        WHEN n BETWEEN 6 AND 15 THEN 'HOD'
+        ELSE 'FACULTY'
+    END
+FROM seq;
+
+# INSERT INTO STUDENTS 
+INSERT INTO STUDENTS
+(ID, NAME, GENDER, PHONE_NO, EMAIL, DOB)
+
+SELECT
+    n,
+    CONCAT(
+        CASE MOD(n, 20)
+            WHEN 0 THEN 'Aarav'
+            WHEN 1 THEN 'Aditya'
+            WHEN 2 THEN 'Akash'
+            WHEN 3 THEN 'Aman'
+            WHEN 4 THEN 'Aniket'
+            WHEN 5 THEN 'Arjun'
+            WHEN 6 THEN 'Karan'
+            WHEN 7 THEN 'Rahul'
+            WHEN 8 THEN 'Rohan'
+            WHEN 9 THEN 'Sagar'
+            WHEN 10 THEN 'Sneha'
+            WHEN 11 THEN 'Priya'
+            WHEN 12 THEN 'Neha'
+            WHEN 13 THEN 'Pooja'
+            WHEN 14 THEN 'Anjali'
+            WHEN 15 THEN 'Kavya'
+            WHEN 16 THEN 'Isha'
+            WHEN 17 THEN 'Riya'
+            WHEN 18 THEN 'Simran'
+            ELSE 'Tanvi'
+        END,
+        ' Student ',
+        n
+    ),
+    
+    CASE 
+        WHEN MOD(n, 2) = 0 THEN 'F'
+        ELSE 'M'
+    END,
+    
+    8000000000 + n,
+    
+    CONCAT(
+        'student',
+        n,
+        '@indiraicem.ac.in'
+    ),
+    
+    DATE_ADD(
+        '2001-01-01',
+        INTERVAL MOD(n * 31, 3500) DAY
+    )
+
+FROM
+(
+    SELECT 
+        a.n 
+        + (b.n * 10)
+        + (c.n * 100)
+        + (d.n * 1000) AS n
+    FROM
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a
+        
+    CROSS JOIN
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
+        
+    CROSS JOIN
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) c
+        
+    CROSS JOIN
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) d
+) numbers
+
+WHERE n BETWEEN 1 AND 2000;
+
+# INSERT INTO DEPARTMENT 
+INSERT INTO DEPARTMENT
+(ID, DEPARTMENT_NAME, DEPARTMENT_CODE, CONTACT_PHONE, CONTACT_EMAIL, FACULTY_ID)
+VALUES
+(1, 'Artificial Intelligence and Data Science', 'AIDS', 9110000001, 'aids@indiraicem.ac.in', 6),
+(2, 'Computer Engineering', 'COMP', 9110000002, 'computer@indiraicem.ac.in', 7),
+(3, 'Information Technology', 'IT', 9110000003, 'it@indiraicem.ac.in', 8),
+(4, 'Electronics and Telecommunication', 'ENTC', 9110000004, 'entc@indiraicem.ac.in', 9),
+(5, 'Mechanical Engineering', 'MECH', 9110000005, 'mechanical@indiraicem.ac.in', 10),
+(6, 'Civil Engineering', 'CIVIL', 9110000006, 'civil@indiraicem.ac.in', 11),
+(7, 'Electrical Engineering', 'ELEC', 9110000007, 'electrical@indiraicem.ac.in', 12),
+(8, 'Master of Computer Applications', 'MCA', 9110000008, 'mca@indiraicem.ac.in', 13),
+(9, 'Management Studies', 'MBA', 9110000009, 'mba@indiraicem.ac.in', 14),
+(10, 'Science and Humanities', 'SH', 9110000010, 'science@indiraicem.ac.in', 15);
+
+# INSERT INTO SUBJECTS 
+INSERT INTO SUBJECTS
+(ID, NAME, SUBJECT_CODE, CREDITS, FACULTY_ID, DEPARTMENT_ID)
+WITH RECURSIVE seq AS (
+    SELECT 1 AS n
+    UNION ALL
+    SELECT n + 1
+    FROM seq
+    WHERE n < 80
+)
+SELECT
+    n,
+    CONCAT(
+        CASE MOD(n - 1, 8)
+            WHEN 0 THEN 'Programming Fundamentals'
+            WHEN 1 THEN 'Database Management System'
+            WHEN 2 THEN 'Data Structures'
+            WHEN 3 THEN 'Computer Networks'
+            WHEN 4 THEN 'Operating Systems'
+            WHEN 5 THEN 'Software Engineering'
+            WHEN 6 THEN 'Artificial Intelligence'
+            ELSE 'Web Development'
+        END,
+        ' ',
+        CEIL(n / 8)
+    ),
+    CONCAT(
+        CASE MOD(n - 1, 8)
+            WHEN 0 THEN 'PF'
+            WHEN 1 THEN 'DBMS'
+            WHEN 2 THEN 'DS'
+            WHEN 3 THEN 'CN'
+            WHEN 4 THEN 'OS'
+            WHEN 5 THEN 'SE'
+            WHEN 6 THEN 'AI'
+            ELSE 'WEB'
+        END,
+        LPAD(n, 3, '0')
+    ),
+    CASE
+        WHEN MOD(n, 3) = 0 THEN 4
+        ELSE 3
+    END,
+    16 + MOD(n - 1, 85),
+    CEIL(n / 8)
+FROM seq;
+
+# INSERT INTO SEMESTER 
+INSERT INTO SEMESTER
+(ID, SEMESTER_NO, YEAR)
+VALUES
+(1, 1, 2023),
+(2, 2, 2023),
+(3, 3, 2024),
+(4, 4, 2024),
+(5, 5, 2025),
+(6, 6, 2025),
+(7, 7, 2026),
+(8, 8, 2026);
+
+# INSERT INTO ENROLLMENT 
+INSERT INTO ENROLLMENT
+(ID, STUDENT_ID, SUBJECT_ID, SEMESTER_ID)
+
+SELECT
+    n AS ID,
+    MOD(n - 1, 2000) + 1 AS STUDENT_ID,
+    MOD(FLOOR((n - 1) / 2000), 80) + 1 AS SUBJECT_ID,
+    MOD(FLOOR((n - 1) / 250), 8) + 1 AS SEMESTER_ID
+
+FROM
+(
+    SELECT 
+        a.n 
+        + (b.n * 10)
+        + (c.n * 100)
+        + (d.n * 1000)
+        + (e.n * 10000) AS n
+
+    FROM
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a
+
+    CROSS JOIN
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
+
+    CROSS JOIN
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) c
+
+    CROSS JOIN
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) d
+
+    CROSS JOIN
+        (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+         UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) e
+) numbers
+
+WHERE n BETWEEN 1 AND 20000;
+
+# INSERT INTO RESULTS 
+INSERT INTO RESULTS
+(ID, ENROLLMENT_ID, MARKS, RESULTS_STATUS)
+SELECT
+    ID,
+    ID,
+    35 + MOD(ID * 17, 66),
+    CASE
+        WHEN 35 + MOD(ID * 17, 66) >= 40
+        THEN 'PASS'
+        ELSE 'FAIL'
+    END
+FROM ENROLLMENT;
+
+# RETRIVE DATA FROM TABLES 
+
+SELECT * FROM STUDENTS LIMIT 100;
+SELECT * FROM STAFF;
+SELECT * FROM DEPARTMENT;
+SELECT * FROM SUBJECTS;
+SELECT * FROM SEMESTER;
+SELECT * FROM ENROLLMENT LIMIT 100;
+SELECT * FROM RESULTS LIMIT 100;
